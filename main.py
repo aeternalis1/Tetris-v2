@@ -3,6 +3,7 @@ import pygame.gfxdraw
 import math
 from random import randint
 
+
 class node:
     def __init__(self, x, y, sz):
         self.x = x
@@ -15,7 +16,7 @@ class block:
     def __init__(self, y, x, sz, occ, orient, col):
         self.x = x  # coordinates of upper left corner of rotation area
         self.y = y
-        self.sz = sz    # size of rotation grid
+        self.sz = sz  # size of rotation grid
         self.occ = occ  # grid squares occupied by block
         self.orient = orient  # orientation of block
         self.col = col
@@ -26,14 +27,14 @@ height = 20
 
 grid = [[None for x in range(width)] for x in range(height)]
 
-colours = [(0, 255, 255),       # 0 - cyan (long boi)
-           (0, 0, 255),       # 1 - blue (J piece)
-           (255, 165, 0),   # 2 - orange (L piece)
-           (255, 255, 0),       # 3 - yellow (square)
-           (0, 128, 0),     # 4 - green (S piece)
-           (255, 0, 0),       # 5 - red (Z piece)
-           (128, 0, 128),   # 6 - purple (T piece)
-           (0, 0, 0)]       # 7 - black (empty)
+colours = [(0, 255, 255),  # 0 - cyan (long boi)
+           (0, 0, 255),  # 1 - blue (J piece)
+           (255, 165, 0),  # 2 - orange (L piece)
+           (255, 255, 0),  # 3 - yellow (square)
+           (0, 128, 0),  # 4 - green (S piece)
+           (255, 0, 0),  # 5 - red (Z piece)
+           (128, 0, 128),  # 6 - purple (T piece)
+           (0, 0, 0)]  # 7 - black (empty)
 
 # format: rotates in x by x grid, with [a,b], [c,d] ... blocks coloured
 types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
@@ -46,7 +47,7 @@ types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right
 
 for i in range(height):
     for j in range(width):
-        grid[i][j] = node(j*30+10, i*30+10, 29)
+        grid[i][j] = node(j * 30 + 10, i * 30 + 10, 29)
 
 
 def paintGrid(screen):
@@ -59,19 +60,19 @@ def paintGrid(screen):
 
 def shift(val, cur):
     for i in cur.occ:
-        y, x = cur.y - i[0], cur.x + i[1]
+        y, x = cur.y + i[0], cur.x + i[1]
         x += val
         if x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1] + val] not in cur.occ):
             return cur
 
     for i in cur.occ:
-        y, x = cur.y - i[0], cur.x + i[1]
+        y, x = cur.y + i[0], cur.x + i[1]
         grid[y][x].col = 7
 
     cur.x += val
 
     for i in cur.occ:
-        y, x = cur.y - i[0], cur.x + i[1]
+        y, x = cur.y + i[0], cur.x + i[1]
         grid[y][x].col = cur.col
 
     return cur
@@ -82,22 +83,22 @@ def rotate(val, cur):
     occ2 = []
 
     for i in cur.occ:
-        if val==1:
-            occ2.append([cur.sz-i[1]-1, i[0]])
+        if val == 1:
+            occ2.append([cur.sz - i[1] - 1, i[0]])
         else:
-            occ2.append([i[1], cur.sz-i[0]-1])
+            occ2.append([i[1], cur.sz - i[0] - 1])
 
     for i in occ2:
-        y, x = cur.y - i[0], cur.x + i[1]
-        if y < 0 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
+        y, x = cur.y + i[0], cur.x + i[1]
+        if y < 0 or x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
             return cur
 
     for i in cur.occ:
-        y, x = cur.y - i[0], cur.x + i[1]
+        y, x = cur.y + i[0], cur.x + i[1]
         grid[y][x].col = 7
 
     for i in occ2:
-        y, x = cur.y - i[0], cur.x + i[1]
+        y, x = cur.y + i[0], cur.x + i[1]
         grid[y][x].col = cur.col
 
     cur.occ = occ2
@@ -114,20 +115,22 @@ def runGame(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        if locked: # if last block dropped has finished
+
+        if locked:  # if last block dropped has been locked into place
             curType = randint(0, 6)
-            cur = block(19, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+            cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
             for i in cur.occ:
-                y, x = cur.y - i[0], cur.x + i[1]
+                y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
             locked = 0
             paintGrid(screen)
+
         keys = pygame.key.get_pressed()
         mod = [0, 0]  # position modifications (shift, rotation)
         if keys[pygame.K_LEFT]:
-            mod[0] += 1
-        if keys[pygame.K_RIGHT]:
             mod[0] -= 1
+        if keys[pygame.K_RIGHT]:
+            mod[0] += 1
         if keys[pygame.K_UP]:
             mod[1] += 1
         if keys[pygame.K_DOWN]:
@@ -138,13 +141,14 @@ def runGame(screen):
         if mod[1]:
             cur = rotate(mod[1], cur)
             paintGrid(screen)
+
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(20)
 
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((521,621))
+    screen = pygame.display.set_mode((521, 621))
     pygame.display.set_caption("Tetris!")
     clock = pygame.time.Clock()
     pygame.display.flip()
@@ -177,5 +181,16 @@ def main():
         clock.tick(60)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
+
+'''
+Current bugs:
+- Need to change direction system
+
+
+To do list:
+- Wall kicks
+- Add falling blocks
+
+'''
