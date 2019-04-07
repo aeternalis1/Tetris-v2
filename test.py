@@ -113,6 +113,7 @@ def runGame(screen):
     locked = 1
     cnt = 0
     interval = 20
+    buffer = 0
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -125,6 +126,7 @@ def runGame(screen):
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
             locked = 0
+            buffer = 0
             paintGrid(screen)
 
         keys = pygame.key.get_pressed()
@@ -133,8 +135,9 @@ def runGame(screen):
             mod[0] -= 1
         if keys[pygame.K_RIGHT]:
             mod[0] += 1
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] and buffer <= 0:
             mod[1] += 1
+            buffer = 4
         if keys[pygame.K_DOWN]:
             cnt += interval/2
         if mod[0]:
@@ -148,6 +151,7 @@ def runGame(screen):
         clock.tick(20)
 
         cnt += 1
+        buffer -= 1
         if cnt >= interval:
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
@@ -164,7 +168,6 @@ def runGame(screen):
                     grid[y][x].col = cur.col
             paintGrid(screen)
             cnt = 0
-
 
 
 def main():
