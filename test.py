@@ -27,14 +27,15 @@ height = 20
 
 grid = [[None for x in range(width)] for x in range(height)]
 
-colours = [(0, 255, 255),  # 0 - cyan (long boi)
-           (0, 0, 255),  # 1 - blue (J piece)
-           (255, 165, 0),  # 2 - orange (L piece)
-           (255, 255, 0),  # 3 - yellow (square)
-           (0, 128, 0),  # 4 - green (S piece)
-           (255, 0, 0),  # 5 - red (Z piece)
-           (128, 0, 128),  # 6 - purple (T piece)
-           (0, 0, 0)]  # 7 - black (empty)
+colours = [(0, 255, 255),   # 0 - cyan (long boi)
+           (0, 0, 255),     # 1 - blue (J piece)
+           (255, 165, 0),   # 2 - orange (L piece)
+           (255, 255, 0),   # 3 - yellow (square)
+           (0, 128, 0),     # 4 - green (S piece)
+           (255, 0, 0),     # 5 - red (Z piece)
+           (128, 0, 128),   # 6 - purple (T piece)
+           (0, 0, 0),       # 7 - black (empty)
+           (255, 255, 255)] # 8 - white (clear)
 
 # format: rotates in x by x grid, with [a,b], [c,d] ... blocks coloured
 types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
@@ -105,6 +106,35 @@ def rotate(val, cur):
     return cur
 
 
+def clearLines(screen):
+    lines = 0
+    for i in range(19, -1, -1):     #get lines that are cleared
+        f = 1
+        for j in range(10):
+            if grid[i][j].col == 7:
+                f = 0
+        if f:
+            lines += 1
+            for j in range(10):
+                grid[i][j].col = 8
+    if not lines:
+        return 0
+
+    paintGrid(screen)
+    lines = 0
+    for i in range(19, -1, -1):
+        if grid[i][0].col == 8:
+            lines += 1
+            for j in range(10):
+                grid[i][j].col = 7
+        else:
+            for j in range(10):
+                grid[i+lines][j].col = grid[i][j].col
+                if lines:
+                    grid[i][j].col = 7
+    return lines
+
+
 def runGame(screen):
     paintGrid(screen)
     clock = pygame.time.Clock()
@@ -120,6 +150,7 @@ def runGame(screen):
                 pygame.quit()
 
         if locked:  # if last block dropped has been locked into place
+            lines = clearLines(screen)
             curType = randint(0, 6)
             cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
             for i in cur.occ:
@@ -136,7 +167,7 @@ def runGame(screen):
         if keys[pygame.K_RIGHT]:
             mod[0] += 1
         if keys[pygame.K_UP] and buffer <= 0:
-            mod[1] += 1
+            mod[1] -= 1
             buffer = 4
         if keys[pygame.K_DOWN]:
             cnt += interval/2
@@ -148,7 +179,7 @@ def runGame(screen):
             paintGrid(screen)
 
         pygame.display.flip()
-        clock.tick(20)
+        clock.tick(30)
 
         cnt += 1
         buffer -= 1
@@ -210,11 +241,9 @@ if __name__ == '__main__':
 
 '''
 Current bugs:
-- Need to change direction system
 
 
 To do list:
 - Wall kicks
-- Add falling blocks
 
 '''
