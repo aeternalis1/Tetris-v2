@@ -156,6 +156,15 @@ def hardDrop(cur):
                 grid[y][x].col = cur.col
 
 
+def genBlock(last):
+    num = randint(1, sum(last))
+    tot = 0
+    for i in range(7):
+        tot += last[i]
+        if num <= tot:
+            return i
+
+
 def runGame(screen):
     paintGrid(screen)
     clock = pygame.time.Clock()
@@ -166,6 +175,11 @@ def runGame(screen):
     interval = 20
     buffer = 0      # buffer for rotation
     buffer2 = 0     # buffer for hard drop
+    level = 0
+
+    last = [1 for x in range(7)]    # how many rounds ago last spawned
+    add = [1 for x in range(7)]
+
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -173,7 +187,16 @@ def runGame(screen):
 
         if locked:  # if last block dropped has been locked into place
             lines = clearLines(screen)
-            curType = randint(0, 6)
+            curType = genBlock(last)    # generate block type
+
+            for i in range(7):          # modify block probabilities
+                if i == curType:
+                    last[i] = 1
+                    add[i] = 1
+                else:
+                    last[i] += add[i]
+                    add[i] += 1
+
             cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
@@ -222,6 +245,12 @@ def runGame(screen):
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
             cnt = 0
+
+        level += 1
+
+        if level >= 1000 and interval > 5:
+            level = 0
+            interval -= 2
 
         paintGrid(screen)
         pygame.display.flip()
@@ -279,7 +308,8 @@ To do list:
 - Main menu
 - "Next block"
 - "Hold block"
-
+- Make blocks spawn above grid
+- Loss condition
 
 Long term:
 - Two-player?
