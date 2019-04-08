@@ -135,6 +135,24 @@ def clearLines(screen):
     return lines
 
 
+def hardDrop(cur):
+    canFall = 1
+    while canFall:
+        for i in cur.occ:
+            y, x = cur.y + i[0], cur.x + i[1]
+            grid[y][x].col = cur.col
+            if y == 19 or (grid[y + 1][x].col != 7 and [i[0] + 1, i[1]] not in cur.occ):
+                canFall = 0
+        if canFall:
+            for i in cur.occ:
+                y, x = cur.y + i[0], cur.x + i[1]
+                grid[y][x].col = 7
+            cur.y += 1
+            for i in cur.occ:
+                y, x = cur.y + i[0], cur.x + i[1]
+                grid[y][x].col = cur.col
+
+
 def runGame(screen):
     paintGrid(screen)
     clock = pygame.time.Clock()
@@ -143,7 +161,8 @@ def runGame(screen):
     locked = 1
     cnt = 0
     interval = 20
-    buffer = 0
+    buffer = 0      # buffer for rotation
+    buffer2 = 0     # buffer for hard drop
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -157,32 +176,34 @@ def runGame(screen):
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
             locked = 0
-            buffer = 0
+            cnt = 0
             paintGrid(screen)
 
         keys = pygame.key.get_pressed()
         mod = [0, 0]  # position modifications (shift, rotation)
+        if keys[pygame.K_SPACE] and buffer <= 0:
+            hardDrop(cur)
+            paintGrid(screen)
+            locked = 1
+            buffer = 8
+            continue
         if keys[pygame.K_LEFT]:
             mod[0] -= 1
         if keys[pygame.K_RIGHT]:
             mod[0] += 1
-        if keys[pygame.K_UP] and buffer <= 0:
+        if keys[pygame.K_UP] and buffer2 <= 0:
             mod[1] -= 1
-            buffer = 4
+            buffer2 = 4
         if keys[pygame.K_DOWN]:
             cnt += interval/2
         if mod[0]:
             cur = shift(mod[0], cur)
-            paintGrid(screen)
         if mod[1]:
             cur = rotate(mod[1], cur)
-            paintGrid(screen)
-
-        pygame.display.flip()
-        clock.tick(30)
 
         cnt += 1
         buffer -= 1
+        buffer2 -= 1
         if cnt >= interval:
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
@@ -197,8 +218,11 @@ def runGame(screen):
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
-            paintGrid(screen)
             cnt = 0
+
+        paintGrid(screen)
+        pygame.display.flip()
+        clock.tick(25)
 
 
 def main():
@@ -240,10 +264,21 @@ if __name__ == '__main__':
     main()
 
 '''
+
 Current bugs:
 
 
 To do list:
+- Ghost block (location of placement)
+- Randomized spawns
 - Wall kicks
+- Points system
+- Main menu
+- "Next block"
+- "Hold block"
+
+Long term:
+- Two-player?
+
 
 '''
