@@ -1,6 +1,7 @@
 import pygame
 import pygame.gfxdraw
 import math
+import time
 from random import randint
 
 
@@ -121,6 +122,8 @@ def clearLines(screen):
         return 0
 
     paintGrid(screen)
+    pygame.display.flip()
+    time.sleep(0.2)
     lines = 0
     for i in range(19, -1, -1):
         if grid[i][0].col == 8:
@@ -276,6 +279,7 @@ To do list:
 - Main menu
 - "Next block"
 - "Hold block"
+
 
 Long term:
 - Two-player?
