@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bc3c4ee8-d842-4088-bd04-2b3dd0efcd64" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/TetrisV2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TetrisV2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-    </list>
+    <list default="true" id="bc3c4ee8-d842-4088-bd04-2b3dd0efcd64" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,11 +10,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="608">
-              <caret line="282" selection-start-line="282" selection-end-line="282" />
+            <state relative-caret-position="297">
+              <caret line="317" column="3" selection-start-line="317" selection-start-column="3" selection-end-line="317" selection-end-column="3" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -28,11 +22,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="251" column="25" lean-forward="true" selection-start-line="251" selection-start-column="25" selection-end-line="251" selection-end-column="25" />
+            <state relative-caret-position="178">
+              <caret line="253" lean-forward="true" selection-end-line="317" selection-end-column="3" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -55,8 +49,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/test.py" />
+        <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
   </component>
@@ -176,7 +170,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-6" y="-6" width="1292" height="692" extended-state="6" />
+    <frame x="-6" y="-6" width="1292" height="692" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.07074722" />
@@ -200,20 +194,20 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/main.py">
+    <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="608">
-          <caret line="282" selection-start-line="282" selection-end-line="282" />
+        <state relative-caret-position="178">
+          <caret line="253" lean-forward="true" selection-end-line="317" selection-end-column="3" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="251" column="25" lean-forward="true" selection-start-line="251" selection-start-column="25" selection-end-line="251" selection-end-column="25" />
+        <state relative-caret-position="297">
+          <caret line="317" column="3" selection-start-line="317" selection-start-column="3" selection-end-line="317" selection-end-column="3" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
