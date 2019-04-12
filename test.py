@@ -39,12 +39,12 @@ colours = [(0, 255, 255),   # 0 - cyan (long boi)
            (255, 255, 255)] # 8 - white (clear)
 
 ghosts = [(0, 128, 128),    # 0 - cyan (long boi)
-          (0, 0, 128),      # 1 - blue (J piece)
+          (0, 0, 160),      # 1 - blue (J piece)
           (128, 82, 0),    # 2 - orange (L piece)
           (128, 128, 0),    # 3 - yellow (square)
           (0, 64, 0),      # 4 - green (S piece)
           (128, 0, 0),      # 5 - red (Z piece)
-          (64, 0, 64)]    # 6 - purple (T piece)
+          (80, 0, 80)]    # 6 - purple (T piece)
 
 # format: rotates in x by x grid, with [a,b], [c,d] ... blocks coloured
 types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
