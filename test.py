@@ -38,6 +38,14 @@ colours = [(0, 255, 255),   # 0 - cyan (long boi)
            (0, 0, 0),       # 7 - black (empty)
            (255, 255, 255)] # 8 - white (clear)
 
+ghosts = [(0, 128, 128),    # 0 - cyan (long boi)
+          (0, 0, 128),      # 1 - blue (J piece)
+          (128, 82, 0),    # 2 - orange (L piece)
+          (128, 128, 0),    # 3 - yellow (square)
+          (0, 64, 0),      # 4 - green (S piece)
+          (128, 0, 0),      # 5 - red (Z piece)
+          (64, 0, 64)]    # 6 - purple (T piece)
+
 # format: rotates in x by x grid, with [a,b], [c,d] ... blocks coloured
 types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
          [3, [0, 0], [1, 0], [1, 1], [1, 2]],  # J piece (spawns pointy down)
@@ -58,6 +66,30 @@ def paintGrid(screen):
         for j in range(width):
             cur = grid[i][j]
             screen.fill(colours[cur.col], [cur.x, cur.y, cur.sz, cur.sz])
+
+
+def ghostBlock(screen, cur):
+    arr = []
+    arr2 = []
+    for i in cur.occ:
+        y, x = cur.y + i[0], cur.x + i[1]
+        arr.append([y, x])
+        arr2.append([y, x])
+    canFall = 1
+    mod = 0
+    while canFall:
+        for [y, x] in arr:
+            if y == 19 or (grid[y + 1][x].col != 7 and [y + 1, x] not in arr):
+                canFall = 0
+        if canFall:
+            mod += 1
+            for i in arr:
+                i[0] += 1
+    for i in arr:
+        if i in arr2:
+            continue
+        temp = grid[i[0]][i[1]]
+        screen.fill(ghosts[cur.col], [temp.x, temp.y, temp.sz, temp.sz])
 
 
 def shift(val, cur):
@@ -253,6 +285,7 @@ def runGame(screen):
             interval -= 2
 
         paintGrid(screen)
+        ghostBlock(screen, cur)
         pygame.display.flip()
         clock.tick(25)
 
@@ -301,7 +334,6 @@ Current bugs:
 
 
 To do list:
-- Ghost block (location of placement)
 - Randomized spawns
 - Wall kicks
 - Points system
