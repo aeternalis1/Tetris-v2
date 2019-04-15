@@ -28,23 +28,23 @@ height = 20
 
 grid = [[None for x in range(width)] for x in range(height)]
 
-colours = [(0, 255, 255),  # 0 - cyan (long boi)
-           (0, 0, 255),  # 1 - blue (J piece)
-           (255, 165, 0),  # 2 - orange (L piece)
-           (255, 255, 0),  # 3 - yellow (square)
-           (0, 128, 0),  # 4 - green (S piece)
-           (255, 0, 0),  # 5 - red (Z piece)
-           (128, 0, 128),  # 6 - purple (T piece)
-           (0, 0, 0),  # 7 - black (empty)
-           (255, 255, 255)]  # 8 - white (clear)
+colours = [(0, 255, 255),   # 0 - cyan (long boi)
+           (0, 0, 255),     # 1 - blue (J piece)
+           (255, 165, 0),   # 2 - orange (L piece)
+           (255, 255, 0),   # 3 - yellow (square)
+           (0, 128, 0),     # 4 - green (S piece)
+           (255, 0, 0),     # 5 - red (Z piece)
+           (128, 0, 128),   # 6 - purple (T piece)
+           (0, 0, 0),       # 7 - black (empty)
+           (255, 255, 255)] # 8 - white (clear)
 
-ghosts = [(0, 128, 128),  # 0 - cyan (long boi)
-          (0, 0, 160),  # 1 - blue (J piece)
-          (128, 82, 0),  # 2 - orange (L piece)
-          (128, 128, 0),  # 3 - yellow (square)
-          (0, 64, 0),  # 4 - green (S piece)
-          (128, 0, 0),  # 5 - red (Z piece)
-          (80, 0, 80)]  # 6 - purple (T piece)
+ghosts = [(0, 128, 128),    # 0 - cyan (long boi)
+          (0, 0, 160),      # 1 - blue (J piece)
+          (128, 82, 0),    # 2 - orange (L piece)
+          (128, 128, 0),    # 3 - yellow (square)
+          (0, 64, 0),      # 4 - green (S piece)
+          (128, 0, 0),      # 5 - red (Z piece)
+          (80, 0, 80)]    # 6 - purple (T piece)
 
 # format: rotates in x by x grid, with [a,b], [c,d] ... blocks coloured
 types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
@@ -55,7 +55,12 @@ types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right
          [3, [0, 0], [0, 1], [1, 1], [1, 2]],  # Z piece (spawns vertical)
          [3, [0, 1], [1, 0], [1, 1], [1, 2]]]  # T piece (spawns upside down)
 
-speeds = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3] + [2] * 10 + [1]  # speeds for levels
+
+speeds = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3] + [2]*10 + [1]   # speeds for levels
+
+
+points = [40, 100, 300, 1200]       # points per number of lines cleared (1,2,3,4)
+
 
 for i in range(height):
     for j in range(width):
@@ -68,6 +73,13 @@ def paintGrid(screen):
         for j in range(width):
             cur = grid[i][j]
             screen.fill(colours[cur.col], [cur.x, cur.y, cur.sz, cur.sz])
+
+
+def displayScore(screen, score):
+    myFont = pygame.font.SysFont("monospace",16)
+    screen.fill(colours[7], [350, 0, 200, 50])
+    scoreText = myFont.render("Score: {0}".format(int(score)), 1, (255, 255, 255))
+    screen.blit(scoreText, (360, 0))
 
 
 def ghostBlock(screen, cur):
@@ -143,7 +155,7 @@ def rotate(val, cur):
 
 def clearLines(screen):
     lines = 0
-    for i in range(19, -1, -1):  # get lines that are cleared
+    for i in range(19, -1, -1):     #get lines that are cleared
         f = 1
         for j in range(10):
             if grid[i][j].col == 7:
@@ -166,7 +178,7 @@ def clearLines(screen):
                 grid[i][j].col = 7
         else:
             for j in range(10):
-                grid[i + lines][j].col = grid[i][j].col
+                grid[i+lines][j].col = grid[i][j].col
                 if lines:
                     grid[i][j].col = 7
     return lines
@@ -205,13 +217,13 @@ def runGame(screen):
     score = 0
     alive = 1
     locked = 1
-    cnt = 0  # counts frames (between drops)
-    level = 0  # current level
-    cleared = 10  # number of lines till next level
+    cnt = 0         # counts frames (between drops)
+    level = 0       # current level
+    cleared = 10     # number of lines till next level
 
-    last = [1 for x in range(7)]  # how many rounds ago last spawned
-    add = [1 for x in range(7)]  # little helper for randomization
-    buffers = [0 for x in range(5)]  # buffers for inputs
+    last = [1 for x in range(7)]        # how many rounds ago last spawned
+    add = [1 for x in range(7)]         # little helper for randomization
+    buffers = [0 for x in range(5)]     # buffers for inputs
 
     while alive:
         for event in pygame.event.get():
@@ -220,9 +232,9 @@ def runGame(screen):
 
         if locked:  # if last block dropped has been locked into place
             lines = clearLines(screen)
-            curType = genBlock(last)  # generate block type
+            curType = genBlock(last)    # generate block type
 
-            for i in range(7):  # modify block probabilities
+            for i in range(7):          # modify block probabilities
                 if i == curType:
                     last[i] = 1
                     add[i] = 1
@@ -239,9 +251,12 @@ def runGame(screen):
             paintGrid(screen)
 
             cleared -= lines
-            if cleared <= 0:
+            if cleared <= 0 and level < len(speeds) - 1:
                 cleared += 10
                 level += 1
+            if lines:
+                score += points[lines - 1] * (level + 1)
+
 
         keys = pygame.key.get_pressed()
         mod = [0, 0]  # position modifications (shift, rotation)
@@ -249,7 +264,7 @@ def runGame(screen):
             hardDrop(cur)
             paintGrid(screen)
             locked = 1
-            buffers[0] = 10
+            buffers[0] = 20
             continue
         if keys[pygame.K_LEFT] and buffers[1] <= 0:
             mod[0] -= 1
@@ -261,8 +276,8 @@ def runGame(screen):
             mod[1] -= 1
             buffers[3] = 10
         if keys[pygame.K_DOWN] and buffers[4] <= 0:
-            cnt += speeds[level] / 2
-            buffers[4] = 5
+            cnt += speeds[level]/2
+            buffers[4] = 2
         if mod[0]:
             cur = shift(mod[0], cur)
         if mod[1]:
@@ -288,8 +303,10 @@ def runGame(screen):
                     grid[y][x].col = cur.col
             cnt = 0
 
+
         paintGrid(screen)
         ghostBlock(screen, cur)
+        displayScore(screen, score)
         pygame.display.flip()
 
         clock.tick(60)

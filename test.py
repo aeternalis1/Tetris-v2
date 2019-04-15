@@ -59,6 +59,9 @@ types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right
 speeds = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3] + [2]*10 + [1]   # speeds for levels
 
 
+points = [40, 100, 300, 1200]       # points per number of lines cleared (1,2,3,4)
+
+
 for i in range(height):
     for j in range(width):
         grid[i][j] = node(j * 30 + 10, i * 30 + 10, 29)
@@ -70,6 +73,13 @@ def paintGrid(screen):
         for j in range(width):
             cur = grid[i][j]
             screen.fill(colours[cur.col], [cur.x, cur.y, cur.sz, cur.sz])
+
+
+def displayScore(screen, score):
+    myFont = pygame.font.SysFont("monospace",16)
+    screen.fill(colours[7], [350, 0, 200, 50])
+    scoreText = myFont.render("Score: {0}".format(int(score)), 1, (255, 255, 255))
+    screen.blit(scoreText, (360, 0))
 
 
 def ghostBlock(screen, cur):
@@ -211,9 +221,9 @@ def runGame(screen):
     level = 0       # current level
     cleared = 10     # number of lines till next level
 
-    last = [1 for x in range(7)]    # how many rounds ago last spawned
-    add = [1 for x in range(7)]     # little helper for randomization
-    buffers = [0 for x in range(5)] # buffers for inputs
+    last = [1 for x in range(7)]        # how many rounds ago last spawned
+    add = [1 for x in range(7)]         # little helper for randomization
+    buffers = [0 for x in range(5)]     # buffers for inputs
 
     while alive:
         for event in pygame.event.get():
@@ -241,9 +251,11 @@ def runGame(screen):
             paintGrid(screen)
 
             cleared -= lines
-            if cleared <= 0:
+            if cleared <= 0 and level < len(speeds) - 1:
                 cleared += 10
                 level += 1
+            if lines:
+                score += points[lines - 1] * (level + 1)
 
 
         keys = pygame.key.get_pressed()
@@ -252,7 +264,7 @@ def runGame(screen):
             hardDrop(cur)
             paintGrid(screen)
             locked = 1
-            buffers[0] = 10
+            buffers[0] = 20
             continue
         if keys[pygame.K_LEFT] and buffers[1] <= 0:
             mod[0] -= 1
@@ -265,7 +277,7 @@ def runGame(screen):
             buffers[3] = 10
         if keys[pygame.K_DOWN] and buffers[4] <= 0:
             cnt += speeds[level]/2
-            buffers[4] = 5
+            buffers[4] = 2
         if mod[0]:
             cur = shift(mod[0], cur)
         if mod[1]:
@@ -294,6 +306,7 @@ def runGame(screen):
 
         paintGrid(screen)
         ghostBlock(screen, cur)
+        displayScore(screen, score)
         pygame.display.flip()
 
         clock.tick(60)
