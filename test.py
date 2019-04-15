@@ -55,6 +55,10 @@ types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right
          [3, [0, 0], [0, 1], [1, 1], [1, 2]],  # Z piece (spawns vertical)
          [3, [0, 1], [1, 0], [1, 1], [1, 2]]]  # T piece (spawns upside down)
 
+
+speeds = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3] + [2]*10 + [1]   # speeds for levels
+
+
 for i in range(height):
     for j in range(width):
         grid[i][j] = node(j * 30 + 10, i * 30 + 10, 29)
@@ -203,14 +207,13 @@ def runGame(screen):
     score = 0
     alive = 1
     locked = 1
-    cnt = 0
-    interval = 20
-    buffer = 0      # buffer for rotation
-    buffer2 = 0     # buffer for hard drop
-    level = 0
+    cnt = 0         # counts frames (between drops)
+    level = 0       # current level
+    cleared = 10     # number of lines till next level
 
     last = [1 for x in range(7)]    # how many rounds ago last spawned
-    add = [1 for x in range(7)]
+    add = [1 for x in range(7)]     # little helper for randomization
+    buffers = [0 for x in range(5)] # buffers for inputs
 
     while alive:
         for event in pygame.event.get():
@@ -237,32 +240,42 @@ def runGame(screen):
             cnt = 0
             paintGrid(screen)
 
+            cleared -= lines
+            if cleared <= 0:
+                cleared += 10
+                level += 1
+
+
         keys = pygame.key.get_pressed()
         mod = [0, 0]  # position modifications (shift, rotation)
-        if keys[pygame.K_SPACE] and buffer <= 0:
+        if keys[pygame.K_SPACE] and buffers[0] <= 0:
             hardDrop(cur)
             paintGrid(screen)
             locked = 1
-            buffer = 8
+            buffers[0] = 10
             continue
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT] and buffers[1] <= 0:
             mod[0] -= 1
-        if keys[pygame.K_RIGHT]:
+            buffers[1] = 5
+        if keys[pygame.K_RIGHT] and buffers[2] <= 0:
             mod[0] += 1
-        if keys[pygame.K_UP] and buffer2 <= 0:
+            buffers[2] = 5
+        if keys[pygame.K_UP] and buffers[3] <= 0:
             mod[1] -= 1
-            buffer2 = 4
-        if keys[pygame.K_DOWN]:
-            cnt += interval/2
+            buffers[3] = 10
+        if keys[pygame.K_DOWN] and buffers[4] <= 0:
+            cnt += speeds[level]/2
+            buffers[4] = 5
         if mod[0]:
             cur = shift(mod[0], cur)
         if mod[1]:
             cur = rotate(mod[1], cur)
 
         cnt += 1
-        buffer -= 1
-        buffer2 -= 1
-        if cnt >= interval:
+        for i in range(len(buffers)):
+            buffers[i] -= 1
+
+        if cnt >= speeds[level]:
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
@@ -278,16 +291,12 @@ def runGame(screen):
                     grid[y][x].col = cur.col
             cnt = 0
 
-        level += 1
-
-        if level >= 1000 and interval > 5:
-            level = 0
-            interval -= 2
 
         paintGrid(screen)
         ghostBlock(screen, cur)
         pygame.display.flip()
-        clock.tick(25)
+
+        clock.tick(60)
 
 
 def main():
@@ -334,6 +343,7 @@ Current bugs:
 
 
 To do list:
+- Delay before block "locking"
 - Randomized spawns
 - Wall kicks
 - Points system
