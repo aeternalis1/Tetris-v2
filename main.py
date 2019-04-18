@@ -357,7 +357,6 @@ Current bugs:
 
 To do list:
 - Delay before block "locking"
-- Randomized spawns
 - Wall kicks
 - Points system
 - Main menu
