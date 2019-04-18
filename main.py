@@ -223,14 +223,17 @@ def runGame(screen):
 
     last = [1 for x in range(7)]        # how many rounds ago last spawned
     add = [1 for x in range(7)]         # little helper for randomization
-    buffers = [0 for x in range(5)]     # buffers for inputs
+    buffers = [0 for x in range(7)]     # buffers for inputs and for locking:
+                                        # 0 - 4 : hard drop, left, right, rotate, soft drop
+                                        # 5 - 6 : locking timer, hard limit to stalling
 
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        if locked:  # if last block dropped has been locked into place
+        if locked and (buffers[5] <= 0 or buffers[6] <= 0):  # if last block dropped has been locked into place
+            buffers[5] = speeds[level]/2 + 5
             lines = clearLines(screen)
             curType = genBlock(last)    # generate block type
 
@@ -265,6 +268,7 @@ def runGame(screen):
             paintGrid(screen)
             locked = 1
             buffers[0] = 20
+            buffers[5] = 0
             continue
         if keys[pygame.K_LEFT] and buffers[1] <= 0:
             mod[0] -= 1
@@ -275,6 +279,7 @@ def runGame(screen):
         if keys[pygame.K_UP] and buffers[3] <= 0:
             mod[1] -= 1
             buffers[3] = 10
+            buffers[5] = speeds[level]/2 + 5
         if keys[pygame.K_DOWN] and buffers[4] <= 0:
             cnt += speeds[level]/2
             buffers[4] = 2
@@ -288,12 +293,15 @@ def runGame(screen):
             buffers[i] -= 1
 
         if cnt >= speeds[level]:
+            locked = 0
+            flag = 0
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
                 if y == 19 or (grid[y + 1][x].col != 7 and [i[0] + 1, i[1]] not in cur.occ):
-                    locked = 1
-            if not locked:
+                    flag = 1
+            if not flag:        # block fell, so refresh locking buffer
+                locked = 0
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = 7
@@ -301,9 +309,15 @@ def runGame(screen):
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
+                buffers[5] = speeds[level]/2 + 5
+                buffers[6] = speeds[level] * 2 + 10
+            else:
+                buffers[6] = min(buffers[6], speeds[level] * 2 + 10)
+                locked = 1
+                buffers[5] -= 1
             cnt = 0
 
-
+        buffers[6] -= 1
         paintGrid(screen)
         ghostBlock(screen, cur)
         displayScore(screen, score)
