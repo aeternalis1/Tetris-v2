@@ -76,10 +76,21 @@ def paintGrid(screen):
 
 
 def displayScore(screen, score):
-    myFont = pygame.font.SysFont("monospace",16)
+    myFont = pygame.font.SysFont("monospace", 16)
     screen.fill(colours[7], [350, 0, 200, 50])
     scoreText = myFont.render("Score: {0}".format(int(score)), 1, (255, 255, 255))
     screen.blit(scoreText, (360, 0))
+
+
+def displayNext(screen, nxt):
+    myFont = pygame.font.SysFont("monospace", 16)
+    screen.fill(colours[7], [350, 50, 100, 100])
+    nextText = myFont.render("Next block:", 1, (255, 255, 255))
+    screen.blit(nextText, (360, 50))
+    for i in nxt.occ:
+        y = i[0] * 20 + 80
+        x = i[1] * 20 + 360
+        screen.fill(colours[nxt.col], [x, y, 20, 20])
 
 
 def ghostBlock(screen, cur):
@@ -227,6 +238,9 @@ def runGame(screen):
                                         # 0 - 4 : hard drop, left, right, rotate, soft drop
                                         # 5 - 6 : locking timer, hard limit to stalling
 
+    curType = randint(0,6)
+    nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -244,14 +258,16 @@ def runGame(screen):
                 else:
                     last[i] += add[i]
                     add[i] += 1
-
-            cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+            cur = nxt
+            nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
+
             locked = 0
             cnt = 0
             paintGrid(screen)
+            displayNext(screen, nxt)
 
             cleared -= lines
             if cleared <= 0 and level < len(speeds) - 1:
