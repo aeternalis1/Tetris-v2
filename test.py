@@ -77,19 +77,27 @@ def paintGrid(screen):
 
 def displayScore(screen, score):
     myFont = pygame.font.SysFont("monospace", 16)
-    screen.fill(colours[7], [350, 0, 200, 50])
+    screen.fill(colours[7], [350, 0, 200, 20])
     scoreText = myFont.render("Score: {0}".format(int(score)), 1, (255, 255, 255))
-    screen.blit(scoreText, (360, 0))
+    screen.blit(scoreText, (370, 0))
 
 
 def displayNext(screen, nxt):
     myFont = pygame.font.SysFont("monospace", 16)
-    screen.fill(colours[7], [350, 50, 100, 100])
+    screen.fill(colours[7], [350, 50, 150, 100])
     nextText = myFont.render("Next block:", 1, (255, 255, 255))
-    screen.blit(nextText, (360, 50))
+    screen.blit(nextText, (370, 40))
+    mid = [69, 420]
+    temp = []
     for i in nxt.occ:
-        y = i[0] * 20 + 80
-        x = i[1] * 20 + 360
+        if nxt.sz % 2:      # if block is 3x3
+            if i[1] == 1:
+                x = mid[1] - 10
+            else:
+                x = mid[1] + (i[1] - nxt.sz / 2) * 20
+        else:
+            x = mid[1] + (i[1] - nxt.sz / 2) * 20
+        y = mid[0] + i[0] * 20
         screen.fill(colours[nxt.col], [x, y, 20, 20])
 
 
@@ -247,6 +255,7 @@ def runGame(screen):
                 pygame.quit()
 
         if locked and (buffers[5] <= 0 or buffers[6] <= 0):  # if last block dropped has been locked into place
+            buffers[0] = 20
             buffers[5] = speeds[level]/2 + 5
             lines = clearLines(screen)
             curType = genBlock(last)    # generate block type
@@ -383,7 +392,7 @@ if __name__ == '__main__':
 '''
 
 Current bugs:
-
+- Strange bug if you rotate while block is locking
 
 To do list:
 - Delay before block "locking"

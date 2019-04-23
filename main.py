@@ -76,10 +76,29 @@ def paintGrid(screen):
 
 
 def displayScore(screen, score):
-    myFont = pygame.font.SysFont("monospace",16)
-    screen.fill(colours[7], [350, 0, 200, 50])
+    myFont = pygame.font.SysFont("monospace", 16)
+    screen.fill(colours[7], [350, 0, 200, 20])
     scoreText = myFont.render("Score: {0}".format(int(score)), 1, (255, 255, 255))
-    screen.blit(scoreText, (360, 0))
+    screen.blit(scoreText, (370, 0))
+
+
+def displayNext(screen, nxt):
+    myFont = pygame.font.SysFont("monospace", 16)
+    screen.fill(colours[7], [350, 50, 150, 100])
+    nextText = myFont.render("Next block:", 1, (255, 255, 255))
+    screen.blit(nextText, (370, 40))
+    mid = [69, 420]
+    temp = []
+    for i in nxt.occ:
+        if nxt.sz % 2:      # if block is 3x3
+            if i[1] == 1:
+                x = mid[1] - 10
+            else:
+                x = mid[1] + (i[1] - nxt.sz / 2) * 20
+        else:
+            x = mid[1] + (i[1] - nxt.sz / 2) * 20
+        y = mid[0] + i[0] * 20
+        screen.fill(colours[nxt.col], [x, y, 20, 20])
 
 
 def ghostBlock(screen, cur):
@@ -227,12 +246,16 @@ def runGame(screen):
                                         # 0 - 4 : hard drop, left, right, rotate, soft drop
                                         # 5 - 6 : locking timer, hard limit to stalling
 
+    curType = randint(0,6)
+    nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
         if locked and (buffers[5] <= 0 or buffers[6] <= 0):  # if last block dropped has been locked into place
+            buffers[0] = 20
             buffers[5] = speeds[level]/2 + 5
             lines = clearLines(screen)
             curType = genBlock(last)    # generate block type
@@ -244,14 +267,16 @@ def runGame(screen):
                 else:
                     last[i] += add[i]
                     add[i] += 1
-
-            cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+            cur = nxt
+            nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
+
             locked = 0
             cnt = 0
             paintGrid(screen)
+            displayNext(screen, nxt)
 
             cleared -= lines
             if cleared <= 0 and level < len(speeds) - 1:
@@ -367,7 +392,7 @@ if __name__ == '__main__':
 '''
 
 Current bugs:
-
+- Strange bug if you rotate while block is locking
 
 To do list:
 - Delay before block "locking"
