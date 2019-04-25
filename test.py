@@ -334,10 +334,10 @@ def runGame(screen):
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
-                buffers[5] = speeds[level]/2 + 5
-                buffers[6] = speeds[level] * 2 + 10
+                buffers[5] = max(20, speeds[level] + 5)
+                buffers[6] = max(50, speeds[level] * 4 + 10)
             else:
-                buffers[6] = min(buffers[6], speeds[level] * 2 + 10)
+                buffers[6] = min(buffers[6], speeds[level] * 4 + 10)
                 locked = 1
                 buffers[5] -= 1
             cnt = 0
@@ -395,7 +395,6 @@ Current bugs:
 - Strange bug if you rotate while block is locking
 
 To do list:
-- Delay before block "locking"
 - Wall kicks
 - Points system
 - Main menu
