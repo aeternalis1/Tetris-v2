@@ -248,6 +248,8 @@ def runGame(screen):
 
     curType = randint(0,6)
     nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+    hold = -1       # current blocktype being held
+    held = 0        # if hold already used during this drop
 
     while alive:
         for event in pygame.event.get():
@@ -255,6 +257,7 @@ def runGame(screen):
                 pygame.quit()
 
         if locked and (buffers[5] <= 0 or buffers[6] <= 0):  # if last block dropped has been locked into place
+            held = 0
             buffers[0] = 20
             buffers[5] = speeds[level]/2 + 5
             lines = clearLines(screen)
@@ -308,6 +311,30 @@ def runGame(screen):
         if keys[pygame.K_DOWN] and buffers[4] <= 0:
             cnt += speeds[level]/2
             buffers[4] = 2
+        if keys[pygame.K_c] and not held:
+            held = 1
+            for i in cur.occ:
+                y, x = cur.y + i[0], cur.x + i[1]
+                grid[y][x].col = 7
+            if hold == -1:
+                hold = cur.col
+                curType = genBlock(last)
+                for i in range(7):  # modify block probabilities
+                    if i == curType:
+                        last[i] = 1
+                        add[i] = 1
+                    else:
+                        last[i] += add[i]
+                        add[i] += 1
+                cur = nxt
+                nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+                continue
+            else:
+                temp = hold
+                hold = cur.col
+                cur = block(0, 5 - types[temp][0] // 2, types[temp][0], types[temp][1:], 0, temp)
+                continue
+
         if mod[0]:
             cur = shift(mod[0], cur)
         if mod[1]:
@@ -334,10 +361,10 @@ def runGame(screen):
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
-                buffers[5] = speeds[level]/2 + 5
-                buffers[6] = speeds[level] * 2 + 10
+                buffers[5] = max(20, speeds[level] + 5)
+                buffers[6] = max(50, speeds[level] * 4 + 10)
             else:
-                buffers[6] = min(buffers[6], speeds[level] * 2 + 10)
+                buffers[6] = min(buffers[6], speeds[level] * 4 + 10)
                 locked = 1
                 buffers[5] -= 1
             cnt = 0
@@ -394,12 +421,15 @@ if __name__ == '__main__':
 Current bugs:
 - Strange bug if you rotate while block is locking
 
+
+Top priority:
+- Add display as to which block is being held
+
+
 To do list:
-- Delay before block "locking"
 - Wall kicks
 - Points system
 - Main menu
-- "Next block"
 - "Hold block"
 - Make blocks spawn above grid
 - Loss condition
