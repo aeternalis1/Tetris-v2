@@ -82,23 +82,33 @@ def displayScore(screen, score):
     screen.blit(scoreText, (370, 0))
 
 
-def displayNext(screen, nxt):
+def displayNext(screen):
     myFont = pygame.font.SysFont("monospace", 16)
-    screen.fill(colours[7], [350, 50, 150, 100])
+    screen.fill(colours[7], [350, 50, 150, 70])
     nextText = myFont.render("Next block:", 1, (255, 255, 255))
     screen.blit(nextText, (370, 40))
-    mid = [69, 420]
+
+
+def displayHold(screen):
+    myFont = pygame.font.SysFont("monospace", 16)
+    nextText = myFont.render("Holding:", 1, (255, 255, 255))
+    screen.blit(nextText, (380, 120))
+
+
+def displayBlock(screen, mid, curType):
+    screen.fill(colours[7], [mid[1] - 60, mid[0] - 10, 120, 60])
+    cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
     temp = []
-    for i in nxt.occ:
-        if nxt.sz % 2:      # if block is 3x3
+    for i in cur.occ:
+        if cur.sz % 2:  # if block is 3x3
             if i[1] == 1:
                 x = mid[1] - 10
             else:
-                x = mid[1] + (i[1] - nxt.sz / 2) * 20
+                x = mid[1] + (i[1] - cur.sz / 2) * 20
         else:
-            x = mid[1] + (i[1] - nxt.sz / 2) * 20
+            x = mid[1] + (i[1] - cur.sz / 2) * 20
         y = mid[0] + i[0] * 20
-        screen.fill(colours[nxt.col], [x, y, 20, 20])
+        screen.fill(colours[cur.col], [x, y, 20, 20])
 
 
 def ghostBlock(screen, cur):
@@ -251,6 +261,9 @@ def runGame(screen):
     hold = -1       # current blocktype being held
     held = 0        # if hold already used during this drop
 
+    displayHold(screen)
+    displayNext(screen)
+
     while alive:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -279,7 +292,7 @@ def runGame(screen):
             locked = 0
             cnt = 0
             paintGrid(screen)
-            displayNext(screen, nxt)
+            displayBlock(screen, [69, 420], curType)
 
             cleared -= lines
             if cleared <= 0 and level < len(speeds) - 1:
@@ -328,12 +341,12 @@ def runGame(screen):
                         add[i] += 1
                 cur = nxt
                 nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
-                continue
             else:
                 temp = hold
                 hold = cur.col
                 cur = block(0, 5 - types[temp][0] // 2, types[temp][0], types[temp][1:], 0, temp)
-                continue
+            displayBlock(screen, [160, 420], hold)
+            continue
 
         if mod[0]:
             cur = shift(mod[0], cur)
@@ -423,7 +436,6 @@ Current bugs:
 
 
 Top priority:
-- Add display as to which block is being held
 
 
 To do list:
