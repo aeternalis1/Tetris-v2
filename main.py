@@ -26,7 +26,7 @@ class block:
 width = 10
 height = 20
 
-grid = [[None for x in range(width)] for x in range(height)]
+grid = [[None for x in range(width)] for x in range(height + 4)]    # 4 extra buffer lines for pieces to fall
 
 colours = [(0, 255, 255),   # 0 - cyan (long boi)
            (0, 0, 255),     # 1 - blue (J piece)
@@ -47,13 +47,13 @@ ghosts = [(0, 128, 128),    # 0 - cyan (long boi)
           (80, 0, 80)]    # 6 - purple (T piece)
 
 # format: rotates in x by x grid, with [a,b], [c,d] ... blocks coloured
-types = [[4, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
-         [3, [0, 0], [1, 0], [1, 1], [1, 2]],  # J piece (spawns pointy down)
-         [3, [1, 0], [1, 1], [1, 2], [0, 2]],  # L piece (spawns pointy down)
-         [2, [0, 0], [0, 1], [1, 0], [1, 1]],  # square piece
-         [3, [1, 0], [1, 1], [0, 1], [0, 2]],  # S piece (spawns vertical)
-         [3, [0, 0], [0, 1], [1, 1], [1, 2]],  # Z piece (spawns vertical)
-         [3, [0, 1], [1, 0], [1, 1], [1, 2]]]  # T piece (spawns upside down)
+types = [[4, -1, [1, 0], [1, 1], [1, 2], [1, 3]],  # long boi (spawns vertical right)
+         [3, -2, [0, 0], [1, 0], [1, 1], [1, 2]],  # J piece (spawns horizontal)
+         [3, -2, [1, 0], [1, 1], [1, 2], [0, 2]],  # L piece (spawns horizontal)
+         [2, -2, [0, 0], [0, 1], [1, 0], [1, 1]],  # square piece
+         [3, -2, [1, 0], [1, 1], [0, 1], [0, 2]],  # S piece (spawns horizontal)
+         [3, -2, [0, 0], [0, 1], [1, 1], [1, 2]],  # Z piece (spawns horizontal)
+         [3, -2, [0, 1], [1, 0], [1, 1], [1, 2]]]  # T piece (spawns upside down)
 
 
 speeds = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3] + [2]*10 + [1]   # speeds for levels
@@ -62,7 +62,7 @@ speeds = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3] + [2]
 points = [40, 100, 300, 1200]       # points per number of lines cleared (1,2,3,4)
 
 
-for i in range(height):
+for i in range(height + 4):
     for j in range(width):
         grid[i][j] = node(j * 30 + 10, i * 30 + 10, 29)
 
@@ -97,7 +97,7 @@ def displayHold(screen):
 
 def displayBlock(screen, mid, curType):
     screen.fill(colours[7], [mid[1] - 60, mid[0] - 10, 120, 60])
-    cur = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+    cur = block(types[curType][1], 5 - types[curType][0] // 2, types[curType][0], types[curType][2:], 0, curType)
     temp = []
     for i in cur.occ:
         if cur.sz % 2:  # if block is 3x3
@@ -167,7 +167,7 @@ def rotate(val, cur):
 
     for i in occ2:
         y, x = cur.y + i[0], cur.x + i[1]
-        if y < 0 or x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
+        if x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
             return cur
 
     for i in cur.occ:
@@ -257,7 +257,7 @@ def runGame(screen):
                                         # 5 - 6 : locking timer, hard limit to stalling
 
     curType = randint(0,6)
-    nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+    nxt = block(types[curType][1], 5 - types[curType][0] // 2, types[curType][0], types[curType][2:], 0, curType)
     hold = -1       # current blocktype being held
     held = 0        # if hold already used during this drop
 
@@ -274,6 +274,7 @@ def runGame(screen):
             buffers[0] = 20
             buffers[5] = speeds[level]/2 + 5
             lines = clearLines(screen)
+
             curType = genBlock(last)    # generate block type
 
             for i in range(7):          # modify block probabilities
@@ -284,10 +285,14 @@ def runGame(screen):
                     last[i] += add[i]
                     add[i] += 1
             cur = nxt
-            nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+            nxt = block(types[curType][1], 5 - types[curType][0] // 2, types[curType][0], types[curType][2:], 0, curType)
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = cur.col
+
+            if not lines:
+                pygame.display.flip()
+                time.sleep(0.2)
 
             locked = 0
             cnt = 0
@@ -340,11 +345,11 @@ def runGame(screen):
                         last[i] += add[i]
                         add[i] += 1
                 cur = nxt
-                nxt = block(0, 5 - types[curType][0] // 2, types[curType][0], types[curType][1:], 0, curType)
+                nxt = block(types[curType][1], 5 - types[curType][0] // 2, types[curType][0], types[curType][2:], 0, curType)
             else:
                 temp = hold
                 hold = cur.col
-                cur = block(0, 5 - types[temp][0] // 2, types[temp][0], types[temp][1:], 0, temp)
+                cur = block(types[curType][1], 5 - types[temp][0] // 2, types[temp][0], types[temp][2:], 0, temp)
             displayBlock(screen, [160, 420], hold)
             continue
 
@@ -436,15 +441,14 @@ Current bugs:
 
 
 Top priority:
-
+- Make blocks spawn above grid
+- Add loss condition
+    - Lose when new block cannot spawn
 
 To do list:
 - Wall kicks
-- Points system
 - Main menu
 - "Hold block"
-- Make blocks spawn above grid
-- Loss condition
 
 Long term:
 - Two-player?
