@@ -294,7 +294,6 @@ def runGame(screen):
                 pygame.display.flip()
                 time.sleep(0.2)
 
-            locked = 0
             cnt = 0
             paintGrid(screen)
             displayBlock(screen, [69, 420], curType)
@@ -306,7 +305,7 @@ def runGame(screen):
             if lines:
                 score += points[lines - 1] * (level + 1)
 
-
+        locked = 0
         keys = pygame.key.get_pressed()
         mod = [0, 0]  # position modifications (shift, rotation)
         if keys[pygame.K_SPACE] and buffers[0] <= 0:
@@ -325,7 +324,6 @@ def runGame(screen):
         if keys[pygame.K_UP] and buffers[3] <= 0:
             mod[1] -= 1
             buffers[3] = 10
-            buffers[5] = speeds[level]/2 + 5
         if keys[pygame.K_DOWN] and buffers[4] <= 0:
             cnt += speeds[level]/2
             buffers[4] = 2
@@ -355,15 +353,16 @@ def runGame(screen):
 
         if mod[0]:
             cur = shift(mod[0], cur)
+            buffers[5] = max(20, speeds[level] / 2 + 10)
         if mod[1]:
             cur = rotate(mod[1], cur)
+            buffers[5] = max(20, speeds[level] / 2 + 10)
 
         cnt += 1
         for i in range(len(buffers)):
             buffers[i] -= 1
 
         if cnt >= speeds[level]:
-            locked = 0
             flag = 0
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
@@ -379,10 +378,9 @@ def runGame(screen):
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
-                buffers[5] = max(20, speeds[level] + 5)
-                buffers[6] = max(50, speeds[level] * 4 + 10)
+                buffers[5] = max(20, speeds[level] / 2 + 10)
+                buffers[6] = max(80, speeds[level] * 4 + 10)
             else:
-                buffers[6] = min(buffers[6], speeds[level] * 4 + 10)
                 locked = 1
                 buffers[5] -= 1
             cnt = 0
@@ -437,7 +435,6 @@ if __name__ == '__main__':
 '''
 
 Current bugs:
-- Strange bug if you rotate while block is locking
 
 
 Top priority:
