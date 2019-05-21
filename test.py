@@ -63,7 +63,7 @@ wallkicks = [       # wallkicks for long boi
     [[[0, 0], [1, 0], [-2, 0], [1, -2], [-2, 1]], [[0, 0], [-2, 0], [1, 0], [-2, -1], [1, 2]]]      # 3 -> 0, 3 -> 2
 ]
 
-wallkicks2 = [
+wallkicks2 = [      # wallkicks for all others
     [[[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]], [[0, 0], [1, 0], [1, 1], [0, -2], [1, -2]]],    # 0 -> 1, 0 -> 3
     [[[0, 0], [1, 0], [1, -1], [0, 2], [1, 2]], [[0, 0], [1, 0], [1, -1], [0, 2], [1, 2]]],         # 1 -> 2, 1 -> 0
     [[[0, 0], [1, 0], [1, 1], [0, -2], [1, -2]], [[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]]],    # 2 -> 3, 2 -> 1
@@ -171,37 +171,32 @@ def shift(val, cur):
 
 
 def rotate(val, cur):
-    mod = [0, 0]  # for wall-kicks (TO BE IMPLEMENTED)
     occ2 = []
+    occ3 = []   # currently occupied by coordinate
 
     for i in cur.occ:
-        if val == 1:
+        occ3.append([cur.y + i[0], cur.x + i[1]])
+        if val == -1:
             occ2.append([cur.sz - i[1] - 1, i[0]])
         else:
             occ2.append([i[1], cur.sz - i[0] - 1])
 
     if not cur.col:
-        wallkick = wallkicks[cur.orient][val != 1]
+        kicks = wallkicks[cur.orient][val != 1]
     else:
-        wallkick = wallkicks2[cur.orient][val != 1]
+        kicks = wallkicks2[cur.orient][val != 1]
 
-    f = 1       # if any valid wallkick
-
-    for mod in wallkick:
-        f = 1
+    for mod in kicks:
+        f = 1       # if wallkick is valid
         for i in occ2:
             y, x = cur.y + i[0] - mod[1], cur.x + i[1] + mod[0]
-            if x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
+            if y > 19 or x < 0 or x >= 10 or (grid[y][x].col != 7 and [y, x] not in occ3):
                 f = 0
+                break
         if f:
-
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
                 grid[y][x].col = 7
-                if val == 1:
-                    occ2.append([cur.sz - i[1] - 1, i[0]])
-                else:
-                    occ2.append([i[1], cur.sz - i[0] - 1])
 
             for i in occ2:
                 y, x = cur.y + i[0] - mod[1], cur.x + i[1] + mod[0]
@@ -210,6 +205,7 @@ def rotate(val, cur):
             cur.occ = occ2
             cur.y = cur.y - mod[1]
             cur.x = cur.x + mod[0]
+            cur.orient = (cur.orient + val) % 4
             return cur
 
     return cur
@@ -355,7 +351,7 @@ def runGame(screen):
             mod[0] += 1
             buffers[2] = 5
         if keys[pygame.K_UP] and buffers[3] <= 0:
-            mod[1] -= 1
+            mod[1] += 1
             buffers[3] = 10
         if keys[pygame.K_DOWN] and buffers[4] <= 0:
             cnt += speeds[level]/2
@@ -387,7 +383,7 @@ def runGame(screen):
         if mod[0]:
             cur = shift(mod[0], cur)
             buffers[5] = max(20, speeds[level] / 2 + 10)
-        if mod[1]:
+        if mod[1] and cur.col != 3:
             cur = rotate(mod[1], cur)
             buffers[5] = max(20, speeds[level] / 2 + 10)
 
@@ -423,7 +419,6 @@ def runGame(screen):
         ghostBlock(screen, cur)
         displayScore(screen, score)
         pygame.display.flip()
-
         clock.tick(60)
 
 
@@ -468,7 +463,6 @@ if __name__ == '__main__':
 '''
 
 Current bugs:
-- Lags like crap when wallkicking
 
 Top priority:
 - Make blocks spawn above grid
