@@ -180,23 +180,38 @@ def rotate(val, cur):
         else:
             occ2.append([i[1], cur.sz - i[0] - 1])
 
-    f = 1       # if block can be rotated normally (w/o wallkick)
-    for i in occ2:
-        y, x = cur.y + i[0], cur.x + i[1]
-        if x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
-            f = 0
+    if not cur.col:
+        wallkick = wallkicks[cur.orient][val != 1]
+    else:
+        wallkick = wallkicks2[cur.orient][val != 1]
 
+    f = 1       # if any valid wallkick
 
+    for mod in wallkick:
+        f = 1
+        for i in occ2:
+            y, x = cur.y + i[0] - mod[1], cur.x + i[1] + mod[0]
+            if x < 0 or x >= 10 or (grid[y][x].col != 7 and [i[0], i[1]] not in cur.occ):
+                f = 0
+        if f:
 
-    for i in cur.occ:
-        y, x = cur.y + i[0], cur.x + i[1]
-        grid[y][x].col = 7
+            for i in cur.occ:
+                y, x = cur.y + i[0], cur.x + i[1]
+                grid[y][x].col = 7
+                if val == 1:
+                    occ2.append([cur.sz - i[1] - 1, i[0]])
+                else:
+                    occ2.append([i[1], cur.sz - i[0] - 1])
 
-    for i in occ2:
-        y, x = cur.y + i[0], cur.x + i[1]
-        grid[y][x].col = cur.col
+            for i in occ2:
+                y, x = cur.y + i[0] - mod[1], cur.x + i[1] + mod[0]
+                grid[y][x].col = cur.col
 
-    cur.occ = occ2
+            cur.occ = occ2
+            cur.y = cur.y - mod[1]
+            cur.x = cur.x + mod[0]
+            return cur
+
     return cur
 
 
@@ -453,7 +468,7 @@ if __name__ == '__main__':
 '''
 
 Current bugs:
-
+- Lags like crap when wallkicking
 
 Top priority:
 - Make blocks spawn above grid
