@@ -301,7 +301,7 @@ def runGame(screen):
         if locked and (buffers[5] <= 0 or buffers[6] <= 0):  # if last block dropped has been locked into place
             held = 0
             buffers[0] = 20
-            buffers[5] = speeds[level]/2 + 5
+            buffers[5] = max(10, speeds[level] / 3 + 10)
             lines = clearLines(screen)
 
             curType = genBlock(last)    # generate block type
@@ -317,7 +317,12 @@ def runGame(screen):
             nxt = block(types[curType][1], 5 - types[curType][0] // 2, types[curType][0], types[curType][2:], 0, curType)
             for i in cur.occ:
                 y, x = cur.y + i[0], cur.x + i[1]
+                if grid[y][x].col != 7:
+                    alive = 0
                 grid[y][x].col = cur.col
+
+            if not alive:
+                break
 
             if not lines:
                 pygame.display.flip()
@@ -382,10 +387,10 @@ def runGame(screen):
 
         if mod[0]:
             cur = shift(mod[0], cur)
-            buffers[5] = max(20, speeds[level] / 2 + 10)
+            buffers[5] = max(10, speeds[level] / 3 + 10)
         if mod[1] and cur.col != 3:
             cur = rotate(mod[1], cur)
-            buffers[5] = max(20, speeds[level] / 2 + 10)
+            buffers[5] = max(10, speeds[level] / 3 + 10)
 
         cnt += 1
         for i in range(len(buffers)):
@@ -407,14 +412,13 @@ def runGame(screen):
                 for i in cur.occ:
                     y, x = cur.y + i[0], cur.x + i[1]
                     grid[y][x].col = cur.col
-                buffers[5] = max(20, speeds[level] / 2 + 10)
-                buffers[6] = max(80, speeds[level] * 4 + 10)
+                buffers[5] = max(10, speeds[level] / 3 + 10)
+                buffers[6] = max(40, speeds[level] * 3 + 10)
             else:
                 locked = 1
                 buffers[5] -= 1
             cnt = 0
 
-        buffers[6] -= 1
         paintGrid(screen)
         ghostBlock(screen, cur)
         displayScore(screen, score)
@@ -465,14 +469,11 @@ if __name__ == '__main__':
 Current bugs:
 
 Top priority:
-- Make blocks spawn above grid
 - Add loss condition
     - Lose when new block cannot spawn
 
 To do list:
-- Wall kicks
 - Main menu
-- "Hold block"
 
 Long term:
 - Two-player?
