@@ -91,23 +91,25 @@ def paintGrid(screen):
 
 
 def displayScore(screen, score):
-    myFont = pygame.font.SysFont("monospace", 16)
-    screen.fill(colours[7], [350, 0, 200, 20])
-    scoreText = myFont.render("Score: {0}".format(int(score)), 1, (255, 255, 255))
-    screen.blit(scoreText, (370, 0))
+    myFont = pygame.font.SysFont("monospace", 20)
+    screen.fill(colours[7], [330, 20, 220, 70])
+    scoreText = myFont.render("Score:", 1, (255, 255, 255))
+    screen.blit(scoreText, (385, 30))
+    scoreText_2 = myFont.render(str(int(score)), 1, (255, 255, 255))
+    screen.blit(scoreText_2, (425-len(str(int(score)))*6, 60))
 
 
 def displayNext(screen):
-    myFont = pygame.font.SysFont("monospace", 16)
-    screen.fill(colours[7], [350, 50, 150, 70])
+    myFont = pygame.font.SysFont("monospace", 20)
+    screen.fill(colours[7], [330, 150, 220, 70])
     nextText = myFont.render("Next block:", 1, (255, 255, 255))
-    screen.blit(nextText, (370, 40))
+    screen.blit(nextText, (355, 170))
 
 
 def displayHold(screen):
-    myFont = pygame.font.SysFont("monospace", 16)
+    myFont = pygame.font.SysFont("monospace", 20)
     nextText = myFont.render("Holding:", 1, (255, 255, 255))
-    screen.blit(nextText, (380, 120))
+    screen.blit(nextText, (375, 260))
 
 
 def displayBlock(screen, mid, curType):
@@ -124,6 +126,22 @@ def displayBlock(screen, mid, curType):
             x = mid[1] + (i[1] - cur.sz / 2) * 20
         y = mid[0] + i[0] * 20
         screen.fill(colours[cur.col], [x, y, 20, 20])
+
+
+def displayGameover(screen):
+    myFont = pygame.font.SysFont("monospace", 50)
+    gameoverText = myFont.render("GAME OVER", 1, (255, 255, 255))
+    screen.blit(gameoverText, (20, 250))
+    clock = pygame.time.Clock()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            return
+        pygame.display.flip()
+        clock.tick(60)
 
 
 def ghostBlock(screen, cur):
@@ -330,7 +348,7 @@ def runGame(screen):
 
             cnt = 0
             paintGrid(screen)
-            displayBlock(screen, [69, 420], curType)
+            displayBlock(screen, [200, 420], curType)
 
             cleared -= lines
             if cleared <= 0 and level < len(speeds) - 1:
@@ -382,15 +400,19 @@ def runGame(screen):
                 temp = hold
                 hold = cur.col
                 cur = block(types[curType][1], 5 - types[temp][0] // 2, types[temp][0], types[temp][2:], 0, temp)
-            displayBlock(screen, [160, 420], hold)
+            displayBlock(screen, [300, 420], hold)
             continue
 
         if mod[0]:
+            lst = cur
             cur = shift(mod[0], cur)
-            buffers[5] = max(10, speeds[level] / 3 + 10)
+            if lst != cur:
+                buffers[5] = max(10, speeds[level] / 3 + 10)
         if mod[1] and cur.col != 3:
+            lst = cur
             cur = rotate(mod[1], cur)
-            buffers[5] = max(10, speeds[level] / 3 + 10)
+            if lst != cur:
+                buffers[5] = max(10, speeds[level] / 3 + 10)
 
         cnt += 1
         for i in range(len(buffers)):
@@ -425,6 +447,7 @@ def runGame(screen):
         pygame.display.flip()
         clock.tick(60)
 
+    displayGameover(screen)
 
 def main():
     pygame.init()
@@ -434,6 +457,7 @@ def main():
     pygame.display.flip()
     running = 1
     paintGrid(screen)
+    print (pygame.font.get_fonts())
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -455,7 +479,11 @@ def main():
                 screen.blit(title,(0,0))
         else:
             screen.blit(title,(0,0))
-        '''
+            '''
+                
+        for i in range(height + 4):
+            for j in range(width):
+                grid[i][j] = node(j * 30 + 10, i * 30 + 10, 29)
         runGame(screen)
         pygame.display.flip()
         clock.tick(60)
